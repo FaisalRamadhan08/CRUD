@@ -24,6 +24,12 @@ Route::get('/dashboard', [DashboardController::class, 'indexPage']);
 
 // User
 // Route::get('/user', [UserController::class, 'indexPage']);
-Route::controller(UserController::class)->prefix('user')->group(function () {
-    Route::get('', 'indexPage')->name('user');
-});
+Route::get('/user', [UserController::class, 'indexPage']);
+Route::post('/store', [UserController::class, 'store']);
+Route::post('/edit', [UserController::class, 'edit']);
+
+// Route::controller(UserController::class)->prefix('user')->group(function () {
+//     Route::get('', 'indexPage')->name('user');
+//     Route::get('create', 'add')->name('user.create');
+//     Route::post('create', 'create')->name('user.add.create');
+// });

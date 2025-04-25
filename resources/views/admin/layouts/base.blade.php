@@ -10,6 +10,7 @@
     <meta name="author" content="">
 
     <title>SB Admin 2 - @yield('title')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('/assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -19,6 +20,7 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ asset('/assets/css/sb-admin-2.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
 
 </head>
 
@@ -316,6 +318,7 @@
 
                     @yield('content')
 
+
                 </div>
                 <!-- /.container-fluid -->
 
@@ -372,6 +375,11 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('/assets/js/sb-admin-2.min.js') }}"></script>
+    <script src="{{ asset('/assets/js/scripts.js') }}"></script>
+
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+
+
 
 </body>
 
