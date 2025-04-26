@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('/welcome');
 });
 
 // Dashboard
+Route::get('/', [DashboardController::class, 'indexPage']);
 Route::get('/dashboard', [DashboardController::class, 'indexPage']);
 
 // User

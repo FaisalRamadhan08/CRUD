@@ -201,26 +201,55 @@ function detailUser(id) {
 }
 
 function toggleStatus(userId) {
-    $.ajax({
-        url: '/user/toggle-status/' + userId,  
-        method: 'POST',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-            if(response.success) {
-                alert("Status berhasil diubah menjadi " + response.status);
-                
-                $('#ajax-crud-datatable').DataTable().ajax.reload();
-            } else {
-                alert("Terjadi kesalahan.");
-            }
-        },
-        error: function(xhr) {
-            alert('Gagal mengubah status user.');
+    Swal.fire({
+        title: 'Apakah Anda yakin',
+        text: "Ingin mengubah status user ini?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ubah',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/user/toggle-status/' + userId,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if(response.success) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Status berhasil diubah menjadi ' + response.status,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        $('#ajax-crud-datatable').DataTable().ajax.reload();
+                    } else {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat mengubah status.',
+                            icon: 'error'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Gagal mengubah status user.',
+                        icon: 'error'
+                    });
+                }
+            });
         }
     });
 }
+
+
+
 
 
 
