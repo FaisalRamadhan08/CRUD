@@ -27,6 +27,8 @@ Route::get('/dashboard', [DashboardController::class, 'indexPage']);
 Route::get('/user', [UserController::class, 'indexPage']);
 Route::post('/store', [UserController::class, 'store']);
 Route::post('/edit', [UserController::class, 'edit']);
+Route::delete('/user/{id}', [UserController::class, 'softDelete'])->name('user.softDelete');
+
 
 // Route::controller(UserController::class)->prefix('user')->group(function () {
 //     Route::get('', 'indexPage')->name('user');

@@ -19,6 +19,10 @@ class UserController extends Controller
 
         if (request()->ajax()) {
             return datatables()->of($users)
+                ->editColumn('photo', function ($row) {
+                    $url = asset('photo/' . $row->photo);
+                    return '<img src="' . $url . '" width="50" height="50" style="object-fit:cover; border-radius:5px;" />';
+                })
                 ->addColumn('action', function ($row) {
                     return '
     <div style="display: flex; gap: 5px; justify-content: center;">
@@ -30,7 +34,7 @@ class UserController extends Controller
         </button>
     </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['photo', 'action'])
                 ->addIndexColumn()
                 ->make(true);
         }
@@ -48,22 +52,39 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'role_id' => 'required',
-            'name' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
-            'address' => 'required',
-            'photo' => 'required|file|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        $request->validate(
+            [
+                'role_id' => 'required',
+                'name' => 'required',
+                'phone' => 'required|numeric',
+                'email' => 'required',
+                'address' => 'required',
+                'photo' => 'required|file|image|mimes:jpeg,png,jpg|max:2048',
+            ],
+            [
+                'role_id.required' => 'Wajib memilih role',
+                'name.required' => 'Nama wajib diisi',
+                'phone.required' => 'No telepon wajib diisi',
+                'phone.required' => 'No telepon wajib dalam angka',
+                'email.required' => 'email wajib diisi',
+                'alamat.required' => 'Alamat wajib diisi',
+                'photo.required' => 'Silakan masukkan foto',
+                'photo.mimes' => 'Hanya menerima file JPEG, JPG, & PNG'
+            ]
+        );
 
         // Handle upload seperti sebelumnya
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
-        } else {
-            // Ambil data lama kalau update
-            $photoPath = User::find($request->id)?->photo;
-        }
+        // if ($request->hasFile('photo')) {
+        //     $photoPath = $request->file('photo')->store('photos', 'public');
+        // } else {
+        //     // Ambil data lama kalau update
+        //     $photoPath = User::find($request->id)?->photo;
+        // }
+
+        $foto_file = $request->file('photo');
+        $foto_ekstensi = $foto_file->extension();
+        $foto_nama = date('ymdhis') . "." . $foto_ekstensi;
+        $foto_file->move(public_path('photo'), $foto_nama);
 
 
         // $userId = $request->id;
@@ -76,7 +97,7 @@ class UserController extends Controller
                 'phone' => $request->phone,
                 'email' => $request->email,
                 'address' => $request->address,
-                'photo' => $photoPath,
+                'photo' => $foto_nama,
             ]
         );
 
@@ -89,5 +110,16 @@ class UserController extends Controller
         $user = User::where($where)->first();
 
         return Response()->json($user);
+    }
+
+    public function softDelete($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->delete(); // ini soft delete
+        return response()->json(['message' => 'User deleted successfully']);
     }
 }

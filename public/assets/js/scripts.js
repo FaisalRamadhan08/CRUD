@@ -78,3 +78,25 @@ $('#UserForm').submit(function(e){
         },
     })
 });
+
+
+function deleteUser(id) {
+    if (confirm("Apakah yakin ingin menghapus data ini?")) {
+        $.ajax({
+            url: `/user/${id}`,
+            type: 'DELETE',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                alert(response.message);
+                $('#ajax-crud-datatable').DataTable().ajax.reload();
+            },
+            error: function(xhr) {
+                alert('Gagal menghapus data.');
+                console.error(xhr.responseText);
+            }
+        });
+    }
+}
+
