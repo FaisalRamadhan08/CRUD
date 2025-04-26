@@ -12,7 +12,6 @@ class UserController extends Controller
 {
     public function indexPage()
     {
-        // $users = User::select('*');
         $users = User::select('users.*', 'roles.name as role_name')
             ->leftJoin('roles', 'users.role_id', '=', 'roles.id');
         $roles = Role::all();
@@ -23,25 +22,36 @@ class UserController extends Controller
                     $url = asset('photo/' . $row->photo);
                     return '<img src="' . $url . '" width="50" height="50" style="object-fit:cover; border-radius:5px;" />';
                 })
+                ->addColumn('status_action', function ($row) {
+                    $btnClass = $row->status ? 'btn-success' : 'btn-secondary';
+                    $label = $row->status ? 'Active' : 'Inactive';
+
+                    return '<button type="button" onclick="toggleStatus(' . $row->id . ')" class="btn ' . $btnClass . ' btn-sm">'
+                        . $label .
+                        '</button>';
+                })
                 ->addColumn('action', function ($row) {
                     return '
-    <div style="display: flex; gap: 5px; justify-content: center;">
-        <button onclick="editUser(' . $row->id . ')" class="btn btn-warning btn-sm">
-            <i class="fas fa-edit"></i>
-        </button>
-        <button onclick="deleteUser(' . $row->id . ')" class="btn btn-danger btn-sm">
-            <i class="fas fa-trash"></i>
-        </button>
-    </div>';
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <button onclick="editUser(' . $row->id . ')" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteUser(' . $row->id . ')" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button onclick="detailUser(' . $row->id . ')" class="btn btn-info btn-sm">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>';
                 })
-                ->rawColumns(['photo', 'action'])
+                ->rawColumns(['photo', 'status_action', 'action'])
                 ->addIndexColumn()
                 ->make(true);
         }
 
         return view('admin.pages.user.index', [
             'user' => $users,
-            'roles' => $roles, // Meneruskan data roles ke view
+            'roles' => $roles,
         ]);
     }
 
@@ -121,5 +131,24 @@ class UserController extends Controller
 
         $user->delete(); // ini soft delete
         return response()->json(['message' => 'User deleted successfully']);
+    }
+
+    public function detail($id)
+    {
+        $user = User::with('role')->findOrFail($id);
+
+        return view('admin.pages.user.detail-user', compact('user'));
+    }
+
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = !$user->status;  // Toggle status aktif/tidak aktif
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'status' => $user->status ? 'Active' : 'Inactive'
+        ]);
     }
 }
